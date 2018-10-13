@@ -1,6 +1,6 @@
 package in
 
-//Execute - provides check capability
+//Execute - provides in capability
 func Execute() (string, error) {
 	return "[]", nil
 }
