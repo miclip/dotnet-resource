@@ -1,20 +1,16 @@
 package out_test
 
 import (
+	"github.com/miclip/dotnet-resource/fakes"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/onsi/gomega/gexec"
 	"github.com/miclip/dotnet-resource/out"
+	"github.com/miclip/dotnet-resource"
 )
 
 var _ = Describe("out", func() {
-	AfterEach(func() {
-		CleanupBuildArtifacts()
-	})
-
-	It("should compile", func() {
-		_, err := Build("github.com/miclip/dotnet-resource/out/cmd")
-		Ω(err).ShouldNot(HaveOccurred())
+	BeforeEach(func(){
+		dotnetresource.ExecCommand = fakes.FakeExecCommand
 	})
 
 	It("should output an empty JSON list", func() {
