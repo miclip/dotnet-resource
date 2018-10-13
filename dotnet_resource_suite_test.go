@@ -1,4 +1,4 @@
-package dotnet_resource_test
+package dotnetresource_test
 
 import (
 	. "github.com/onsi/ginkgo"
