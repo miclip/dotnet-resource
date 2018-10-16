@@ -9,7 +9,7 @@ RUN set -e; for pkg in $(go list ./...); do \
 		go test -o "/tests/$(basename $pkg).test" -c $pkg; \
 	done
 
-FROM microsoft:dotnet AS resource
+FROM microsoft/dotnet AS resource
 COPY --from=builder assets/ /opt/resource/
 RUN chmod +x /opt/resource/*
 
