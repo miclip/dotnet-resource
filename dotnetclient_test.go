@@ -33,7 +33,7 @@ var _ = Describe("dotnetclient", func() {
 		defer func() { dotnetresource.ExecCommand = exec.Command }()
 		fakes.MockedExitStatus = 0
 		fakes.MockedStdout = ""
-		expectedCommand := "dotnet test /path/project.csproj -f netcoreapp2.1 --no-build --no-restore --filter A_Filter -p:RuntimeIdentifier= ubuntu.14.04-x64"		
+		expectedCommand := "dotnet test /path/project.csproj -f netcoreapp2.1 --no-build --no-restore --filter A_Filter -p:RuntimeIdentifier=ubuntu.14.04-x64"		
 		
 		client := dotnetresource.NewDotnetClient("/path/project.csproj","netcoreapp2.1","ubuntu.14.04-x64")
 		_, err := client.Test("A_Filter")

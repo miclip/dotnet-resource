@@ -41,7 +41,7 @@ func (client *dotnetclient) Build() ([]byte, error) {
 }
 
 func (client *dotnetclient) Test(testfilter string) ([]byte, error) {
-	cmd := ExecCommand("dotnet", "test", client.path, "-f", client.framework, "--no-build", "--no-restore", "--filter", testfilter, "-p:RuntimeIdentifier=", client.runtime,)
+	cmd := ExecCommand("dotnet", "test", client.path, "-f", client.framework, "--no-build", "--no-restore", "--filter", testfilter, "-p:RuntimeIdentifier="+client.runtime)
 	out, err := cmd.CombinedOutput()
 	return out, err
 }
