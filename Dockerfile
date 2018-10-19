@@ -9,7 +9,7 @@ RUN set -e; for pkg in $(go list ./...); do \
 		go test -o "/tests/$(basename $pkg).test" -c $pkg; \
 	done
 
-FROM microsoft/dotnet:2.1-runtime-alpine AS resource
+FROM microsoft/dotnet:2.2-sdk-alpine AS resource
 COPY --from=builder assets/ /opt/resource/
 RUN mkdir -p /etc/BUILDS/ && \
     printf "Build of miclip/dotnet-resource, date: %s\n"  `date -u +"%Y-%m-%dT%H:%M:%SZ"` > /etc/BUILDS/alpine-golang && \
@@ -17,7 +17,7 @@ RUN mkdir -p /etc/BUILDS/ && \
     curl https://storage.googleapis.com/golang/go1.11.linux-amd64.tar.gz | tar xzf - -C / && \
     mv /go /goroot && \
     apk del curl && \
-    rm -rf /var/cache/apk/* \
+    rm -rf /var/cache/apk/* && \
     chmod +x /opt/resource/*
 
 ENV GOROOT=/goroot \

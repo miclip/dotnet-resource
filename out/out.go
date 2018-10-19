@@ -1,19 +1,15 @@
 package out
 
 import (
-	"fmt"
-	"log"
-	
+	"path"
 	"github.com/miclip/dotnet-resource"
+	
 )
 
 //Execute - provides out capability
-func Execute() (string, error) {
-	client := dotnetresource.NewDotnetClient("/path/project.csproj","netcoreapp2.1","ubuntu.14.04-x64")
+func Execute(sourceDir string, project string, framework string, runtime string) ([]byte, error) {	
+	client := dotnetresource.NewDotnetClient(path.Join(sourceDir,project),framework,runtime)
 	out, err := client.Build()
-	if(err != nil) {
-		log.Fatal(err)
-	}
-	fmt.Println(string(out))
-	return "[]", nil
+	return out, err
 }
+
