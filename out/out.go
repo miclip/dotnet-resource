@@ -7,9 +7,18 @@ import (
 )
 
 //Execute - provides out capability
-func Execute(sourceDir string, project string, framework string, runtime string) ([]byte, error) {	
-	client := dotnetresource.NewDotnetClient(path.Join(sourceDir,project),framework,runtime)
+func Execute(request Request, sourceDir string) ([]byte, error) {	
+	out := []byte{}
+	client := dotnetresource.NewDotnetClient(path.Join(sourceDir,request.Params.Project),request.Source.Framework,request.Source.Runtime)
 	out, err := client.Build()
-	return out, err
+	if(err!=nil){
+		return out, err
+	}
+	testOut, err := client.Test(request.Params.TestFilter)
+	out = append(out, testOut...)
+	if(err!=nil){
+		return out, err
+	}
+	return out, nil
 }
 

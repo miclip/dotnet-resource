@@ -6,11 +6,12 @@ import (
 
 type Request struct {
 	Source dotnetresource.Source `json:"source"`
-	Params Params            `json:"params"`
+	Params Params                `json:"params"`
 }
 
 type Params struct {
-	Project        string `json:"project"`
+	Project    string `json:"project"`
+	TestFilter string `json:"testfilter"`
 }
 
 type Response struct {

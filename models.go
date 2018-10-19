@@ -1,5 +1,9 @@
 package dotnetresource
 
+import (
+	"time"
+)
+
 type Source struct {
 	Framework          string `json:"framework"`
 	Runtime      string `json:"runtime"`
@@ -11,8 +15,7 @@ func (source Source) IsValid() (bool, string) {
 }
 
 type Version struct {
-	Path      string `json:"path,omitempty"`
-	VersionID string `json:"version_id,omitempty"`
+	Timestamp time.Time `json:"timestamp"`
 }
 
 type MetadataPair struct {

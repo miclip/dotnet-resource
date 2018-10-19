@@ -1,6 +1,7 @@
 package main
 
 import (
+	"time"
 	"os"
 	"log"
 	"encoding/json"
@@ -9,7 +10,6 @@ import (
 )
 
 func main() {
-	dotnetresource.Sayf("arg 0 %v \n",os.Args[1])
 
 	if len(os.Args) < 2 {
 		dotnetresource.Sayf("usage: %s <sources directory>\n", os.Args[0])
@@ -19,14 +19,24 @@ func main() {
 	var request out.Request
 	inputRequest(&request)
 
-	output, err := out.Execute(os.Args[1],request.Params.Project, request.Source.Framework, request.Source.Runtime)
+	output, err := out.Execute(request, os.Args[1])
 	dotnetresource.Sayf(string(output))
 	if err != nil {
 		log.Fatal(err)
 	}	
 	response := out.Response{
-		Version : dotnetresource.Version{Path:"path", VersionID: "1.0"},
-		Metadata : []dotnetresource.MetadataPair{ dotnetresource.MetadataPair{ Name:"name", Value:"value"},
+		Version: dotnetresource.Version{
+			Timestamp: time.Now(),
+		},
+		Metadata: []dotnetresource.MetadataPair{
+			{
+				Name:  "project",
+				Value: request.Params.Project,
+			},
+			{
+				Name:  "framework",
+				Value: request.Source.Framework,
+			},
 		},
 	}
 

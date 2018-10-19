@@ -14,8 +14,18 @@ var _ = Describe("out", func() {
 	})
 
 	It("should output an empty JSON list", func() {
-		_, err := out.Execute("sourceDir","/path/project.csproj","netcoreapp2.1","ubuntu.14.04-x64")
+		request := out.Request{
+			Source: dotnetresource.Source{
+				Framework: "netcoreapp2.1",
+				Runtime: "ubuntu.14.04-x64",
+			},
+			Params: out.Params{
+				Project: "/path/project.csproj",
+				TestFilter: "A_Filter",
+			},
+		}
+		_, err := out.Execute(request, "sourceDir")
 		Expect(err).ShouldNot(HaveOccurred())
-		//Expect(output).Should(MatchJSON("[]"))
+		//Expect(output).Should()
 	})
 })
