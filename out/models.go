@@ -10,8 +10,10 @@ type Request struct {
 }
 
 type Params struct {
-	Project    string `json:"project"`
-	TestFilter string `json:"testfilter"`
+	Project     string `json:"project"`
+	TestFilter  string `json:"testfilter"`
+	Version     string `json:version`
+	PackageName string `json:packagename`
 }
 
 type Response struct {

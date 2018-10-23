@@ -19,7 +19,7 @@ func main() {
 	var request out.Request
 	inputRequest(&request)
 
-	output, err := out.Execute(request, os.Args[1])
+	output, err := out.Execute(&request, os.Args[1])
 	dotnetresource.Sayf(string(output))
 	if err != nil {
 		log.Fatal(err)
@@ -36,6 +36,10 @@ func main() {
 			{
 				Name:  "framework",
 				Value: request.Source.Framework,
+			},
+			{
+				Name:  "version",
+				Value: request.Params.Version,
 			},
 		},
 	}

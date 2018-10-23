@@ -24,7 +24,7 @@ var _ = Describe("out", func() {
 				TestFilter: "A_Filter",
 			},
 		}
-		_, err := out.Execute(request, "/tmp")
+		_, err := out.Execute(&request, "/tmp")
 		Expect(err).ShouldNot(HaveOccurred())
 		//Expect(output).Should()
 	})

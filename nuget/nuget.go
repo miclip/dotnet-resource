@@ -105,7 +105,7 @@ func (client *nugetclient) GetPackageVersion(ctx context.Context, name string, p
 	}
 
 	if searchResults == nil {
-		return nil, fmt.Errorf("No Search Results return from SearchQueryService URL")
+		return nil, nil
 	}
 
 	for _ ,result := range searchResults.Data {
