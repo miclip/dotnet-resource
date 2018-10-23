@@ -7,6 +7,7 @@ import (
 type Source struct {
 	Framework          string `json:"framework"`
 	Runtime      string `json:"runtime"`
+	NugetSource string `json:"nuget_source"`
 }
 
 func (source Source) IsValid() (bool, string) {
