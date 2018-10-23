@@ -11,6 +11,8 @@ import (
 type DotnetClient interface {
 	Build() ([]byte, error)
 	Test(testfilter string) ([]byte, error)
+	Pack(version string) ([]byte, error)
+	Push(sourceURL string, apiKey string) ([]byte, error)
 }
 
 type dotnetclient struct {
@@ -18,6 +20,7 @@ type dotnetclient struct {
 	framework string
 	runtime   string
 	sourceDir string
+	packageDir string
 }
 
 // NewDotnetClient ...
@@ -36,6 +39,7 @@ func NewDotnetClient(
 		framework: targetFramework,
 		runtime:   targetRuntime,
 		sourceDir: root,
+		packageDir: root+"/packages",
 	}
 }
 
@@ -50,7 +54,7 @@ func (client *dotnetclient) Test(testfilter string) ([]byte, error) {
 	output := []byte{}
 	cmd := ExecCommand("find", client.sourceDir, "-type", "f", "-name", testfilter)
 	out, err := cmd.CombinedOutput()
-	if(err!= nil){
+	if err != nil {
 		Fatal("error searching for test projects: \n"+string(out), err)
 	}
 	scanner := bufio.NewScanner(strings.NewReader(string(out)))
@@ -61,4 +65,16 @@ func (client *dotnetclient) Test(testfilter string) ([]byte, error) {
 		output = append(output, out...)
 	}
 	return output, nil
+}
+
+func (client *dotnetclient) Pack(version string) ([]byte, error) {
+	cmd := ExecCommand("dotnet", "pack", path.Join(client.sourceDir, client.path), "--no-build", "--no-restore", "--output", client.packageDir, "--runtime", client.runtime, "--include-symbols", "-p:PackageVersion="+version)
+	out, err := cmd.CombinedOutput()
+	return out, err
+}
+
+func (client *dotnetclient) Push(sourceURL string, apiKey string) ([]byte, error) {
+	cmd := ExecCommand("dotnet", "nuget", "push", client.packageDir+"/*.*", "--api-key", apiKey, "--source", sourceURL)
+	out, err := cmd.CombinedOutput()
+	return out, err
 }
