@@ -20,3 +20,8 @@ type Response struct {
 	Version  dotnetresource.Version        `json:"version"`
 	Metadata []dotnetresource.MetadataPair `json:"metadata"`
 }
+
+type ProjectMetaData struct {
+	PackageID string
+	Path      string
+}

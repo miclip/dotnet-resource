@@ -11,7 +11,7 @@ import (
 type DotnetClient interface {
 	Build() ([]byte, error)
 	Test(testfilter string) ([]byte, error)
-	Pack(version string) ([]byte, error)
+	Pack(projectPath string, version string) ([]byte, error)
 	Push(sourceURL string, apiKey string) ([]byte, error)
 }
 
@@ -67,8 +67,8 @@ func (client *dotnetclient) Test(testfilter string) ([]byte, error) {
 	return output, nil
 }
 
-func (client *dotnetclient) Pack(version string) ([]byte, error) {
-	cmd := ExecCommand("dotnet", "pack", path.Join(client.sourceDir, client.path), "--no-build", "--no-restore", "--output", client.packageDir, "--runtime", client.runtime, "--include-symbols", "-p:PackageVersion="+version)
+func (client *dotnetclient) Pack(projectPath string, version string) ([]byte, error) {
+	cmd := ExecCommand("dotnet", "pack", projectPath, "--no-build", "--no-restore", "--output", client.packageDir, "--runtime", client.runtime, "--include-symbols", "-p:PackageVersion="+version)
 	out, err := cmd.CombinedOutput()
 	return out, err
 }

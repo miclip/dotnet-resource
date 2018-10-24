@@ -40,3 +40,5 @@
 [[constraint]]
   name="github.com/mitchellh/colorstring"
 
+[[constraint]]
+  name="gopkg.in/xmlpath.v1"
