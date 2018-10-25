@@ -1,5 +1,9 @@
 package nuget
 
+import (
+	"encoding/xml"
+)
+
 // ServiceIndex response type
 type ServiceIndex struct {
 	Version   string     `json:"version"`
@@ -18,7 +22,7 @@ type SearchResults struct {
 	TotalHits  int            `json:"totalHits"`
 	Index      string         `json:"index"`
 	LastReopen string         `json:"lastReopen"`
-	Data    []SearchResult `json:"data"`
+	Data       []SearchResult `json:"data"`
 }
 
 // SearchResult from the nuget api
@@ -32,4 +36,15 @@ type PackageVersion struct {
 	ID          string `json:"id"`
 	Version     string `json:"version"`
 	Description string `json:"description"`
+}
+
+type Nuspec struct {
+	XMLName                  xml.Name `xml:"package"`
+	Xmlns                    string   `xml:"xmlns,attr"`
+	ID                       string   `xml:"metadata>id"`
+	Version                  string   `xml:"metadata>version"`
+	Authors                  string   `xml:"metadata>authors"`
+	Owners                   string   `xml:"metadata>owners"`
+	RequireLicenseAcceptance bool     `xml:"metadata>requireLicenseAcceptance"`
+	Description              string   `xml:"metadata>description"`
 }

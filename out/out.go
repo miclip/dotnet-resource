@@ -1,6 +1,8 @@
 package out
 
 import (
+	"bytes"
+	"encoding/xml"
 	"bufio"
 	"context"
 	"fmt"
@@ -45,22 +47,55 @@ func Execute(request Request, sourceDir string) ([]byte, error) {
 				return out, err
 			}
 		}
-		dotnetresource.Sayf("dotnet pack for %s...\n", p.PackageID)
-		packOut, err := client.Pack(p.Path, version)
-		out = append(out, packOut...)
-		if err != nil {
-			return out, err
+		if strings.ToLower(request.Params.PackageType) == "library" {
+			dotnetresource.Sayf("dotnet pack for %s...\n", p.PackageID)
+			packOut, err := client.Pack(p.Path, version)
+			out = append(out, packOut...)
+			if err != nil {
+				return out, err
+			}
+		}
+		if strings.ToLower(request.Params.PackageType) == "application" {
+			dotnetresource.Sayf("publish for %s...\n", p.PackageID)
+			publishOut, err := client.Publish(p.Path, p.PackageID)
+			out = append(out, publishOut...)
+			if err != nil {
+				return out, err
+			}
+			
+			nuspec := createNupsec(request, p, version)
+			enc, err := xml.Marshal(nuspec)
+			enc = []byte(xml.Header + string(enc))
+			if err!= nil {
+				dotnetresource.Fatal("error creating nuspec file",err)
+			}
+			dotnetresource.Sayf("Nuspec:\n %s \n", string(enc))
+
+			reader := bytes.NewReader(enc)
+			client.AddFileToPackage(p.PackageID, version, reader)			
+
+			dotnetresource.Sayf("manual pack for %s...\n", p.PackageID)
+			packOut, err := client.ManualPack(p.PackageID, version)
+			out = append(out, packOut...)
+			if err != nil {
+				return out, err
+			}
 		}
 	}
 
 	dotnetresource.Sayf("dotnet nuget push...\n")
-	pushOut, err := client.Push(request.Source.NugetSource, request.Source.NugetAPIKey)
+	pushOut, err := client.Push(request.Source.NugetSource, request.Source.NugetAPIKey, request.Source.NugetTimeout)
 	out = append(out, pushOut...)
 	if err != nil {
 		return out, err
 	}
 
 	return out, nil
+}
+
+func createNupsec(request Request, p ProjectMetaData, version string) nuget.Nuspec {
+	nugetclient := nuget.NewNugetClient(request.Source.NugetSource)
+	return nugetclient.CreateNuspec(p.PackageID,version, p.Author,p.Description,p.Owner)
 }
 
 // GenerateNextVersion ....
@@ -70,7 +105,7 @@ func GenerateNextVersion(request Request, packageName string) (string, error) {
 	if err != nil {
 		pv = &nuget.PackageVersion{
 			ID:      packageName,
-			Version: "1.0.0",
+			Version: strings.Replace(request.Params.Version, "*", "0", -1),
 		}
 	}
 	latestVersion := strings.Split(pv.Version, ".")
@@ -93,6 +128,9 @@ func FindAllIsPackable(sourceDir string) []ProjectMetaData {
 	var packages []ProjectMetaData
 	isPackablePath := xmlpath.MustCompile("/Project/PropertyGroup/IsPackable")
 	packageID := xmlpath.MustCompile("/Project/PropertyGroup/PackageId")
+	author := xmlpath.MustCompile("/Project/PropertyGroup/Authors")
+	owner := xmlpath.MustCompile("/Project/PropertyGroup/Company")
+	description := xmlpath.MustCompile("/Project/PropertyGroup/Description")
 
 	cmd := ExecCommand("find", sourceDir, "-type", "f", "-name", "*.csproj")
 	out, err := cmd.CombinedOutput()
@@ -113,6 +151,15 @@ func FindAllIsPackable(sourceDir string) []ProjectMetaData {
 					packageMetadata := ProjectMetaData{
 						PackageID: value,
 						Path:      filePath,
+					}
+					if value, ok := author.String(root); ok {
+						packageMetadata.Author = value
+					}
+					if value, ok := owner.String(root); ok {
+						packageMetadata.Owner = value
+					}
+					if value, ok := description.String(root); ok {
+						packageMetadata.Description = value
 					}
 					packages = append(packages, packageMetadata)
 				}

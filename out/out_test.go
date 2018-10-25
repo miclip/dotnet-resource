@@ -103,8 +103,7 @@ var _ = Describe("generateNextVersion", func() {
 				Params: out.Params{
 					Project:     "/path/project.csproj",
 					TestFilter:  "A_Filter",
-					Version:     "1.0.*",
-					PackageName: "Some.Package.Name",
+					Version:     "1.0.*",			
 				},
 			}
 			version, err := out.GenerateNextVersion(request, "Some.Package.Name")
@@ -123,7 +122,6 @@ var _ = Describe("generateNextVersion", func() {
 					Project:     "/path/project.csproj",
 					TestFilter:  "A_Filter",
 					Version:     "1.*.*",
-					PackageName: "Some.Package.Name",
 				},
 			}
 			version, err := out.GenerateNextVersion(request, "Some.Package.Name")
@@ -142,7 +140,6 @@ var _ = Describe("generateNextVersion", func() {
 					Project:     "/path/project.csproj",
 					TestFilter:  "A_Filter",
 					Version:     "1.*.0",
-					PackageName: "Some.Package.Name",
 				},
 			}
 			version, err := out.GenerateNextVersion(request, "Some.Package.Name")
@@ -161,7 +158,6 @@ var _ = Describe("generateNextVersion", func() {
 					Project:     "/path/project.csproj",
 					TestFilter:  "A_Filter",
 					Version:     "*.*.*",
-					PackageName: "Some.Package.Name",
 				},
 			}
 			version, err := out.GenerateNextVersion(request, "Some.Package.Name")
@@ -180,7 +176,6 @@ var _ = Describe("generateNextVersion", func() {
 					Project:     "/path/project.csproj",
 					TestFilter:  "A_Filter",
 					Version:     "1.0.1-dev.*",
-					PackageName: "Some.Package.Name",
 				},
 			}
 			_,err := out.GenerateNextVersion(request, "Some.Package.Name")

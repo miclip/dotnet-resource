@@ -12,8 +12,8 @@ type Request struct {
 type Params struct {
 	Project     string `json:"project"`
 	TestFilter  string `json:"testfilter"`
-	Version     string `json:version`
-	PackageName string `json:packagename`
+	Version     string `json:"version"`
+	PackageType string `json:"packagetype"`
 }
 
 type Response struct {
@@ -22,6 +22,9 @@ type Response struct {
 }
 
 type ProjectMetaData struct {
-	PackageID string
-	Path      string
+	PackageID   string
+	Path        string
+	Author      string
+	Owner       string
+	Description string
 }

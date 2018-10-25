@@ -9,6 +9,7 @@ type Source struct {
 	Runtime      string `json:"runtime"`
 	NugetSource string `json:"nuget_source"`
 	NugetAPIKey string `json:"nuget_apikey"`
+	NugetTimeout int `json:"nuget_timeout"`
 }
 
 func (source Source) IsValid() (bool, string) {
