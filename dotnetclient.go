@@ -1,12 +1,12 @@
 package dotnetresource
 
 import (
-	"strconv"
-	"os"
-	"io"
 	"bufio"
+	"io"
+	"os"
 	"os/exec"
 	"path"
+	"strconv"
 	"strings"
 )
 
@@ -15,17 +15,17 @@ type DotnetClient interface {
 	Build() ([]byte, error)
 	Test(testfilter string) ([]byte, error)
 	Pack(projectPath string, version string) ([]byte, error)
-	Push(sourceURL string, apiKey string,timeout int) ([]byte, error)
+	Push(sourceURL string, apiKey string, timeout int) ([]byte, error)
 	Publish(projectPath string, packageID string) ([]byte, error)
 	ManualPack(packageID string, version string) ([]byte, error)
 	AddFileToPackage(packageID string, version string, reader io.Reader) error
 }
 
 type dotnetclient struct {
-	path      string
-	framework string
-	runtime   string
-	sourceDir string
+	path       string
+	framework  string
+	runtime    string
+	sourceDir  string
 	packageDir string
 }
 
@@ -41,11 +41,11 @@ func NewDotnetClient(
 	targetRuntime := runtime
 	root := sourceDir
 	return &dotnetclient{
-		path:      projectPath,
-		framework: targetFramework,
-		runtime:   targetRuntime,
-		sourceDir: root,
-		packageDir: root+"/packages",
+		path:       projectPath,
+		framework:  targetFramework,
+		runtime:    targetRuntime,
+		sourceDir:  root,
+		packageDir: root + "/packages",
 	}
 }
 
@@ -86,14 +86,14 @@ func (client *dotnetclient) Push(sourceURL string, apiKey string, timeout int) (
 }
 
 func (client *dotnetclient) Publish(projectPath string, packageID string) ([]byte, error) {
-	cmd := ExecCommand("dotnet", "publish", projectPath, "--no-build", "--no-restore","-f", client.framework, "-r", client.runtime, "-o", client.packageDir+"/"+packageID )
+	cmd := ExecCommand("dotnet", "publish", projectPath, "--no-build", "--no-restore", "-f", client.framework, "-r", client.runtime, "-o", client.packageDir+"/"+packageID)
 	out, err := cmd.CombinedOutput()
 	return out, err
 }
 
 func (client *dotnetclient) ManualPack(packageID string, version string) ([]byte, error) {
 	out := []byte{}
-	packageName := client.packageDir+"/"+packageID+"."+version
+	packageName := client.packageDir + "/" + packageID + "." + version
 	cmd := ExecCommand("7z", "a", "-r", packageName+".zip", client.packageDir+"/"+packageID+"/*")
 	zipOut, err := cmd.CombinedOutput()
 	out = append(out, zipOut...)
@@ -109,33 +109,33 @@ func (client *dotnetclient) ManualPack(packageID string, version string) ([]byte
 	return out, err
 }
 
-func (client *dotnetclient) AddFileToPackage(packageID string, version string, reader io.Reader) (error) {
+func (client *dotnetclient) AddFileToPackage(packageID string, version string, reader io.Reader) error {
 
-	fo, err := os.Create(client.packageDir+"/"+packageID+"/"+packageID+".nuspec")
+	fo, err := os.Create(client.packageDir + "/" + packageID + "/" + packageID + ".nuspec")
 	if err != nil {
-			panic(err)
+		panic(err)
 	}
-	
+
 	defer func() {
-			if err := fo.Close(); err != nil {
-					panic(err)
-			}
+		if err := fo.Close(); err != nil {
+			panic(err)
+		}
 	}()
 
 	buf := make([]byte, 1024)
 	for {
-			n, err := reader.Read(buf)
-			if err != nil && err != io.EOF {
-					panic(err)
-			}
+		n, err := reader.Read(buf)
+		if err != nil && err != io.EOF {
+			panic(err)
+		}
 
-			if n == 0 {
-					break
-			}
+		if n == 0 {
+			break
+		}
 
-			if _, err := fo.Write(buf[:n]); err != nil {
-					panic(err)
-			}
+		if _, err := fo.Write(buf[:n]); err != nil {
+			panic(err)
+		}
 	}
 	return nil
 }
