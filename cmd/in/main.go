@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 	"encoding/json"
 	"github.com/miclip/dotnet-resource"
@@ -14,17 +15,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	dotnetresource.Sayf("os.Args[0] %s",os.Args[0])
-	dotnetresource.Sayf("os.Args[1] %s",os.Args[1])
-
 	var request in.Request
 	inputRequest(&request)
 
-	response := in.Response{
-		Version: dotnetresource.Version{
-			PackageID : request.Version.PackageID,
-			Version: request.Version.Version,
-		},
+	response, output, err := in.Execute(request, os.Args[1])
+	dotnetresource.Sayf(string(output))
+
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	outputResponse(response)

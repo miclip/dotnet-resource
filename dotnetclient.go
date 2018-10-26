@@ -19,6 +19,7 @@ type DotnetClient interface {
 	Publish(projectPath string, packageID string) ([]byte, error)
 	ManualPack(packageID string, version string) ([]byte, error)
 	AddFileToPackage(packageID string, version string,filename string, reader io.Reader) error
+	ManualUnpack(packageID string, version string) ([]byte, error)
 }
 
 type dotnetclient struct {
@@ -106,6 +107,24 @@ func (client *dotnetclient) ManualPack(packageID string, version string) ([]byte
 	if err != nil {
 		return out, err
 	}
+	return out, err
+}
+
+func (client *dotnetclient) ManualUnpack(packageID string, version string) ([]byte, error) {
+	out := []byte{}
+	packageName := client.packageDir + "/" + packageID + "." + version
+	cmd := ExecCommand("/bin/sh", "-c", "mv -v "+packageName+".nupkg"+" "+packageName+".zip")
+	mvOut, err := cmd.CombinedOutput()
+	out = append(out, mvOut...)
+	if err != nil {
+		return out, err
+	}	
+	cmd = ExecCommand("7z", "x", packageName+".zip", "-o"+client.sourceDir+"/"+packageID, "-r")
+	zipOut, err := cmd.CombinedOutput()
+	out = append(out, zipOut...)
+	if err != nil {
+		return out, err
+	}	
 	return out, err
 }
 

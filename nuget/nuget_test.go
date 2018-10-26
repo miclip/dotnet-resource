@@ -228,7 +228,6 @@ var _ = Describe("GetPackageVersion", func() {
 			Ω(r.Version).To(Equal("2.0.1"))
 		})
 	})
-
 })
 
 var _ = Describe("CreateNuspec", func() {
