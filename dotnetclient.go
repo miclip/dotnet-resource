@@ -18,7 +18,7 @@ type DotnetClient interface {
 	Push(sourceURL string, apiKey string, timeout int) ([]byte, error)
 	Publish(projectPath string, packageID string) ([]byte, error)
 	ManualPack(packageID string, version string) ([]byte, error)
-	AddFileToPackage(packageID string, version string, reader io.Reader) error
+	AddFileToPackage(packageID string, version string,filename string, reader io.Reader) error
 }
 
 type dotnetclient struct {
@@ -109,9 +109,9 @@ func (client *dotnetclient) ManualPack(packageID string, version string) ([]byte
 	return out, err
 }
 
-func (client *dotnetclient) AddFileToPackage(packageID string, version string, reader io.Reader) error {
+func (client *dotnetclient) AddFileToPackage(packageID string, version string, filename string, reader io.Reader) error {
 
-	fo, err := os.Create(client.packageDir + "/" + packageID + "/" + packageID + ".nuspec")
+	fo, err := os.Create(client.packageDir + "/" + packageID + "/" + filename)
 	if err != nil {
 		panic(err)
 	}

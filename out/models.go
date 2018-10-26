@@ -11,13 +11,13 @@ type Request struct {
 
 type Params struct {
 	Project     string `json:"project"`
-	TestFilter  string `json:"testfilter"`
+	TestFilter  string `json:"test_filter"`
 	Version     string `json:"version"`
-	PackageType string `json:"packagetype"`
+	PackageType string `json:"package_type"`
 }
 
 type Response struct {
-	Version  dotnetresource.Version        `json:"version"`
+	Version  dotnetresource.VersionTime        `json:"version"`
 	Metadata []dotnetresource.MetadataPair `json:"metadata"`
 }
 

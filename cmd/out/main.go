@@ -1,10 +1,10 @@
 package main
 
 import (
-	"time"
-	"os"
-	"log"
 	"encoding/json"
+	"log"
+	"os"
+
 	"github.com/miclip/dotnet-resource"
 	"github.com/miclip/dotnet-resource/out"
 )
@@ -19,31 +19,12 @@ func main() {
 	var request out.Request
 	inputRequest(&request)
 
-	output, err := out.Execute(request, os.Args[1])
+	response, output, err := out.Execute(request, os.Args[1])
 	dotnetresource.Sayf(string(output))
 	if err != nil {
 		log.Fatal(err)
-	}	
-	response := out.Response{
-		Version: dotnetresource.Version{
-			Timestamp: time.Now(),
-		},
-		Metadata: []dotnetresource.MetadataPair{
-			{
-				Name:  "project",
-				Value: request.Params.Project,
-			},
-			{
-				Name:  "framework",
-				Value: request.Source.Framework,
-			},
-			{
-				Name:  "version",
-				Value: request.Params.Version,
-			},
-		},
 	}
-
+	
 	outputResponse(response)
 }
 

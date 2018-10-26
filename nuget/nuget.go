@@ -128,6 +128,8 @@ func (client *nugetclient) GetPackageVersion(ctx context.Context, name string, p
 				Version:     result.Version,
 				Description: result.Description,
 			}, nil
+		} else {
+			return nil, nil
 		}
 	}
 

@@ -1,6 +1,7 @@
 package out
 
 import (
+	"time"
 	"bytes"
 	"encoding/xml"
 	"bufio"
@@ -19,22 +20,41 @@ import (
 var ExecCommand = exec.Command
 
 //Execute - provides out capability
-func Execute(request Request, sourceDir string) ([]byte, error) {
+func Execute(request Request, sourceDir string) (Response, []byte, error) {
 	out := []byte{}
+	response := Response{
+		Version: dotnetresource.VersionTime{
+			Timestamp: time.Now(),
+		},
+		Metadata: []dotnetresource.MetadataPair{
+			{
+				Name:  "project",
+				Value: request.Params.Project,
+			},
+			{
+				Name:  "framework",
+				Value: request.Source.Framework,
+			},
+			{
+				Name:  "runtime",
+				Value: request.Source.Runtime,
+			},
+		},
+	}
 
 	client := dotnetresource.NewDotnetClient(request.Params.Project, request.Source.Framework, request.Source.Runtime, sourceDir)
 
 	dotnetresource.Sayf("dotnet build...\n")
 	out, err := client.Build()
 	if err != nil {
-		return out, err
+		return response, out, err
 	}
 
 	dotnetresource.Sayf("dotnet test...\n")
 	testOut, err := client.Test(request.Params.TestFilter)
 	out = append(out, testOut...)
 	if err != nil {
-		return out, err
+		return response, out, err
 	}
 
 	packages := FindAllIsPackable(sourceDir)
@@ -44,15 +64,19 @@ func Execute(request Request, sourceDir string) ([]byte, error) {
 			dotnetresource.Sayf("calculating version for %s...\n", p.PackageID)
 			version, err = GenerateNextVersion(request, p.PackageID)
 			if err != nil {
-				return out, err
+				return response, out, err
 			}
 		}
+		response.Metadata = append(response.Metadata, dotnetresource.MetadataPair{
+				Name:  p.PackageID,
+				Value: version,			
+		})
 		if strings.ToLower(request.Params.PackageType) == "library" {
 			dotnetresource.Sayf("dotnet pack for %s...\n", p.PackageID)
 			packOut, err := client.Pack(p.Path, version)
 			out = append(out, packOut...)
 			if err != nil {
-				return out, err
+				return response, out, err
 			}
 		}
 		if strings.ToLower(request.Params.PackageType) == "application" {
@@ -60,7 +84,7 @@ func Execute(request Request, sourceDir string) ([]byte, error) {
 			publishOut, err := client.Publish(p.Path, p.PackageID)
 			out = append(out, publishOut...)
 			if err != nil {
-				return out, err
+				return response, out, err
 			}
 			
 			nuspec := createNupsec(request, p, version)
@@ -69,16 +93,15 @@ func Execute(request Request, sourceDir string) ([]byte, error) {
 			if err!= nil {
 				dotnetresource.Fatal("error creating nuspec file",err)
 			}
-			dotnetresource.Sayf("Nuspec:\n %s \n", string(enc))
-
+			
 			reader := bytes.NewReader(enc)
-			client.AddFileToPackage(p.PackageID, version, reader)			
+			client.AddFileToPackage(p.PackageID, version, p.PackageID + ".nuspec", reader)			
 
 			dotnetresource.Sayf("manual pack for %s...\n", p.PackageID)
 			packOut, err := client.ManualPack(p.PackageID, version)
 			out = append(out, packOut...)
 			if err != nil {
-				return out, err
+				return response, out, err
 			}
 		}
 	}
@@ -87,10 +110,10 @@ func Execute(request Request, sourceDir string) ([]byte, error) {
 	pushOut, err := client.Push(request.Source.NugetSource, request.Source.NugetAPIKey, request.Source.NugetTimeout)
 	out = append(out, pushOut...)
 	if err != nil {
-		return out, err
+		return response, out, err
 	}
 
-	return out, nil
+	return response, out, nil
 }
 
 func createNupsec(request Request, p ProjectMetaData, version string) nuget.Nuspec {

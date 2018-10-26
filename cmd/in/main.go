@@ -1,7 +1,6 @@
 package main
 
 import (
-	"time"
 	"os"
 	"encoding/json"
 	"github.com/miclip/dotnet-resource"
@@ -15,17 +14,16 @@ func main() {
 		os.Exit(1)
 	}
 
+	dotnetresource.Sayf("os.Args[0] %s",os.Args[0])
+	dotnetresource.Sayf("os.Args[1] %s",os.Args[1])
+
 	var request in.Request
 	inputRequest(&request)
 
-	timestamp := request.Version.Timestamp
-	if timestamp.IsZero() {
-		timestamp = time.Now()
-	}
-
 	response := in.Response{
 		Version: dotnetresource.Version{
-			Timestamp: timestamp,
+			PackageID : request.Version.PackageID,
+			Version: request.Version.Version,
 		},
 	}
 
