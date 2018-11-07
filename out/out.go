@@ -1,16 +1,16 @@
 package out
 
 import (
-	"time"
-	"bytes"
-	"encoding/xml"
 	"bufio"
+	"bytes"
 	"context"
+	"encoding/xml"
 	"fmt"
 	"os"
 	"os/exec"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/miclip/dotnet-resource"
 	"github.com/miclip/dotnet-resource/nuget"
@@ -68,8 +68,8 @@ func Execute(request Request, sourceDir string) (Response, []byte, error) {
 			}
 		}
 		response.Metadata = append(response.Metadata, dotnetresource.MetadataPair{
-				Name:  p.PackageID,
-				Value: version,			
+			Name:  p.PackageID,
+			Value: version,
 		})
 		if strings.ToLower(request.Params.PackageType) == "library" {
 			dotnetresource.Sayf("dotnet pack for %s...\n", p.PackageID)
@@ -86,16 +86,16 @@ func Execute(request Request, sourceDir string) (Response, []byte, error) {
 			if err != nil {
 				return response, out, err
 			}
-			
+
 			nuspec := createNupsec(request, p, version)
 			enc, err := xml.Marshal(nuspec)
 			enc = []byte(xml.Header + string(enc))
-			if err!= nil {
-				dotnetresource.Fatal("error creating nuspec file",err)
+			if err != nil {
+				dotnetresource.Fatal("error creating nuspec file", err)
 			}
-			
+
 			reader := bytes.NewReader(enc)
-			client.AddFileToPackage(p.PackageID, version, p.PackageID + ".nuspec", reader)			
+			client.AddFileToPackage(p.PackageID, version, p.PackageID+".nuspec", reader)
 
 			dotnetresource.Sayf("manual pack for %s...\n", p.PackageID)
 			packOut, err := client.ManualPack(p.PackageID, version)
@@ -118,14 +118,14 @@ func Execute(request Request, sourceDir string) (Response, []byte, error) {
 
 func createNupsec(request Request, p ProjectMetaData, version string) nuget.Nuspec {
 	nugetclient := nuget.NewNugetClient(request.Source.NugetSource)
-	return nugetclient.CreateNuspec(p.PackageID,version, p.Author,p.Description,p.Owner)
+	return nugetclient.CreateNuspec(p.PackageID, version, p.Author, p.Description, p.Owner)
 }
 
 // GenerateNextVersion ....
 func GenerateNextVersion(request Request, packageName string) (string, error) {
 	nugetclient := nuget.NewNugetClient(request.Source.NugetSource)
 	pv, err := nugetclient.GetPackageVersion(context.Background(), packageName, true)
-	if err != nil {
+	if err != nil || pv == nil {
 		pv = &nuget.PackageVersion{
 			ID:      packageName,
 			Version: strings.Replace(request.Params.Version, "*", "0", -1),
